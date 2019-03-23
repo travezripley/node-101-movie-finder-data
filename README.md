@@ -35,7 +35,7 @@ $ npm run dev
 ## Now
 
 Site deployed to Now at the following URL:
-movie-finder-data-6fa3jw2nd.now.sh
+https://movie-finder-data-6fa3jw2nd.now.sh
 
 Thank you for taking the time to look at my projects,
 
