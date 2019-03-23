@@ -1,67 +1,54 @@
 //March 17th, 2019 * Node101-Movie-Finder-Data * San Diego Code School
-
 //Required NPM Packages
-
 // Create Express server framework
 const express = require('express');
 const app = express();
-
 const axios = require('axios');
 const morgan = require('morgan');
-
 app.use(morgan('dev'));
 
-
-//const URL = 'http://www.omdbapi.com';
-
-//const path = require('path');
-
-//const cache = {};
-//API Key from OMDb
-//const API_KEY = "49a19b32";
+var cache = {}; //the cache 
+//storing request parameters
 
 app.get('/', (req, res) => {
-    
-    //encodeURIComponent(
-    let movieTitle = req.query.t;//look up encode
-    let movieId = req.query.i;
-    
-    //console.log(`movieTitle is ${movieTitle}`);
-    
-    if (movieTitle) {
-        axios
-            .get(`http://www.omdbapi.com/?t=${movieTitle}&apikey=8730e0e`)
-            .then(response => {
-                res.status(200).json(response.data);
-                //cache = {'movieID': movieId, 'data': response.data};
-                //handle response variable
-                //console.log(response.data);
-                //console.log(response.body);
-            })
-            .catch(error => {
-                console.log('error', error);
-        });
+  //res.send("Sup Dawg, We need to fix this app!");
 
-    } else if (movieId) {        
-        axios
-            .get(`http://www.omdbapi.com/?i=${movieId}&apikey=8730e0e`)
-            .then(response => {
-                res.status(200).json(response.data);
-                //cache = {'movieID': movieId, 'data': response.data};
-                //handle response variable
-                //console.log(response.data);
-                //console.log(response.body);
-            })
-            .catch(error => {
-                console.log('error', error);
+  const movieId = req.query.i;
+  const movieTitle = encodeURIComponent(req.query.t); //encodeURIComponent(req.query.t);
+
+  if (movieId) {//checks to see if it is a movie*id or movie*title
+    if (cache.hasOwnProperty(movieId)) {
+      res.json(cache[movieId]);
+      console.log('MovieId was sent from the cache.');
+    } else {
+      //console.log('MovieId was not found in the cache, use Axios.');  
+      axios
+        .get(`http://www.omdbapi.com/?i=${movieId}&apikey=8730e0e`)
+        .then(response => {
+          cache[movieId] = response.data;
+          res.json(cache[movieId]);
+        })
+        .catch(error => {
+          console.log('error', error);
         });
-        // 
     }
-    // When making calls to the OMDB API make sure to append the '&apikey=8730e0e' parameter
-    //console.log(movieTitle);
+  } else if (movieTitle) {
+    if (cache.hasOwnProperty(movieTitle)) {
+      res.json(cache[movieTitle]);
+      //console.log(`MovieTitle - ${movieTitle} - was sent from the cache.`);
+    } else {
+      axios
+        .get(`http://www.omdbapi.com/?t=${movieTitle}&apikey=8730e0e`)
+        .then(response => {
+          cache[movieTitle] = response.data;
+          res.json(cache[movieTitle]);
+        })
+        .catch(error => {
+          console.log('error', error);
+        });
+    }
+  }
 
-    // console.log(req.query);
-    // res.send('Hi guys!');
 });
-
-module.exports = app;
+//export the express application
+module.exports = app;            
